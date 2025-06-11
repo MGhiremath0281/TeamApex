@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Add Medical Record{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-screen -mt-24">
+    <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-lg">
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Add New Medical Record</h2>
+        <form method="POST" action="{{ url_for('doctor.doctor_add_medical_record') }}" class="space-y-6">
+            <div>
+                <label for="patient_uid" class="block text-gray-700 text-sm font-semibold mb-2">Select Patient (UID):</label>
+                <select id="patient_uid" name="patient_uid" required
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200">
+                    <option value="">-- Select a Patient --</option>
+                    {% for patient_uid, patient_name in patients %}
+                        <option value="{{ patient_uid }}"
+                                {% if preselected_patient_uid and preselected_patient_uid == patient_uid %}selected{% endif %}
+                                {% if form_data and form_data.patient_uid == patient_uid %}selected{% endif %}>
+                            {{ patient_name }} (UID: {{ patient_uid }})
+                        </option>
+                    {% endfor %}
+                </select>
+                <p class="text-xs text-gray-500 mt-1">If the patient is not in the list, please ensure they are registered first.</p>
+            </div>
+            <div>
+                <label for="symptoms_diagnosis" class="block text-gray-700 text-sm font-semibold mb-2">Symptoms & Diagnosis:</label>
+                <textarea id="symptoms_diagnosis" name="symptoms_diagnosis" rows="4" required
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                          placeholder="e.g., Patient presented with fever (102F), severe cough, and body aches. Diagnosis: Influenza A.">{{ form_data.symptoms_diagnosis if form_data else '' }}</textarea>
+            </div>
+            <div>
+                <label for="allergies" class="block text-gray-700 text-sm font-semibold mb-2">Allergies:</label>
+                <textarea id="allergies" name="allergies" rows="3"
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                          placeholder="e.g., Penicillin, Dust Mites. State 'None' if no known allergies.">{{ form_data.allergies if form_data else '' }}</textarea>
+            </div>
+            <div>
+                <label for="prescriptions" class="block text-gray-700 text-sm font-semibold mb-2">Prescriptions:</label>
+                <textarea id="prescriptions" name="prescriptions" rows="6" required
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                          placeholder="e.g., Oseltamivir 75mg bid for 5 days. Paracetamol 500mg as needed for fever. Advised bed rest and hydration.">{{ form_data.prescriptions if form_data else '' }}</textarea>
+            </div>
+            <button type="submit"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                Add Record
+            </button>
+        </form>
+        <p class="text-center text-gray-600 text-sm mt-6">
+            <a href="{{ url_for('doctor.doctor_dashboard') }}" class="text-blue-600 hover:underline font-semibold">Back to Dashboard</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

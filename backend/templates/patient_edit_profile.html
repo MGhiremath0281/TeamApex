@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Edit My Profile{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-screen -mt-24">
+    <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-lg">
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Edit My Profile Details</h2>
+        <form method="POST" action="{{ url_for('patient.patient_edit_profile') }}" class="space-y-6">
+            <p class="text-gray-600 text-sm mb-4">
+                You can update your personal information below. Your name cannot be changed here.
+            </p>
+
+            <div>
+                <label for="name" class="block text-gray-700 text-sm font-semibold mb-2">Full Name:</label>
+                <input type="text" id="name" name="name" value="{{ patient_data.name }}" readonly disabled
+                       class="w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-lg cursor-not-allowed">
+                <p class="text-xs text-gray-500 mt-1">Your name cannot be changed here.</p>
+            </div>
+
+            <div>
+                <label for="date_of_birth" class="block text-gray-700 text-sm font-semibold mb-2">Date of Birth:</label>
+                <input type="date" id="date_of_birth" name="date_of_birth" value="{{ patient_data.date_of_birth }}" required
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200">
+            </div>
+            <div>
+                <label for="gender" class="block text-gray-700 text-sm font-semibold mb-2">Gender:</label>
+                <select id="gender" name="gender" required
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200">
+                    <option value="">Select Gender</option>
+                    <option value="Male" {% if patient_data.gender == 'Male' %}selected{% endif %}>Male</option>
+                    <option value="Female" {% if patient_data.gender == 'Female' %}selected{% endif %}>Female</option>
+                    <option value="Other" {% if patient_data.gender == 'Other' %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+            <div>
+                <label for="contact_info" class="block text-gray-700 text-sm font-semibold mb-2">Contact Info (Email/Phone):</label>
+                <input type="text" id="contact_info" name="contact_info" value="{{ patient_data.contact_info }}" required
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                       placeholder="e.g., email@example.com or +1234567890">
+            </div>
+
+            <h3 class="text-xl font-bold text-gray-800 mt-6 mb-4">Emergency Contact Information</h3>
+            <div>
+                <label for="emergency_contact_name" class="block text-gray-700 text-sm font-semibold mb-2">Contact Name:</label>
+                <input type="text" id="emergency_contact_name" name="emergency_contact_name" value="{{ patient_data.emergency_contact_name if patient_data.emergency_contact_name else '' }}"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                       placeholder="Emergency contact full name">
+            </div>
+            <div>
+                <label for="emergency_contact_relationship" class="block text-gray-700 text-sm font-semibold mb-2">Relationship:</label>
+                <input type="text" id="emergency_contact_relationship" name="emergency_contact_relationship" value="{{ patient_data.emergency_contact_relationship if patient_data.emergency_contact_relationship else '' }}"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                       placeholder="e.g., Mother, Spouse, Friend">
+            </div>
+            <div>
+                <label for="emergency_contact_phone" class="block text-gray-700 text-sm font-semibold mb-2">Phone Number:</label>
+                <input type="text" id="emergency_contact_phone" name="emergency_contact_phone" value="{{ patient_data.emergency_contact_phone if patient_data.emergency_contact_phone else '' }}"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                       placeholder="e.g., +1234567890">
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                Save Changes
+            </button>
+        </form>
+        <p class="text-center text-gray-600 text-sm mt-6">
+            <a href="{{ url_for('patient.patient_dashboard') }}" class="text-blue-600 hover:underline font-semibold">Back to Dashboard</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

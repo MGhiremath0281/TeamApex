@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Doctor Dashboard{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <h1 class="text-3xl font-bold text-white mb-6">HC02 Virtual Health Record</h1>
+
+    {% if message %}
+        <div class="bg-red-700 text-white p-4 rounded-md mb-6 shadow-lg">
+            {{ message }}
+        </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <!-- New Patient Entry Section -->
+        <div class="card flex flex-col items-center text-center">
+            <h3><i class="fas fa-user-plus text-yellow-500"></i> New Patient Entry</h3>
+            <p class="text-gray-400 mb-4">Assign a Unique ID and register a new patient, then add initial consultation details.</p>
+            <form action="{{ url_for('doctor.doctor_initiate_new_patient') }}" method="POST" class="w-full space-y-3">
+                <input type="text" name="new_patient_uid_input" placeholder="Assign New Patient UID" required
+                       class="w-full bg-gray-700 text-white px-4 py-3 rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                <button type="submit"
+                        class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-3 px-6 rounded-md shadow-md transition-colors">
+                    Initiate New Patient
+                </button>
+            </form>
+        </div>
+
+        <!-- Add Medical Record for Existing Patient -->
+        <div class="card flex flex-col items-center text-center">
+            <h3><i class="fas fa-notes-medical text-blue-500"></i> Add Medical Record</h3>
+            <p class="text-gray-400 mb-4">Add new disease history and prescriptions for an existing patient.</p>
+            <a href="{{ url_for('doctor.doctor_add_medical_record') }}"
+               class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-5 rounded-full shadow-md transition-colors">
+                Add Record
+            </a>
+        </div>
+
+        <!-- Manage Appointments Card -->
+        <div class="card flex flex-col items-center text-center">
+            <h3><i class="fas fa-calendar-alt text-green-500"></i> Manage Appointments</h3>
+            <p class="text-gray-400 mb-4">View, create, and manage appointments for your patients.</p>
+            <a href="{{ url_for('appointment.manage_appointments') }}"
+               class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-5 rounded-full shadow-md transition-colors">
+                Go to Appointments
+            </a>
+        </div>
+    </div>
+
+    <!-- Existing Patient Management Section -->
+    <div class="card mb-8">
+        <h3><i class="fas fa-user-injured text-teal-400"></i> Existing Patient Management</h3>
+        <p class="text-gray-400 mb-4">Enter Patient Unique Identifier (UID) to retrieve and manage their details.</p>
+        <form action="{{ url_for('doctor.doctor_dashboard') }}" method="GET" class="flex flex-col sm:flex-row gap-4">
+            <input type="text" name="uid_search" placeholder="Enter Existing Patient UID"
+                   value="{{ searched_uid or '' }}"
+                   class="flex-grow bg-gray-700 text-white px-4 py-3 rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-md shadow-md transition-colors flex-shrink-0">
+                <i class="fas fa-search mr-2"></i> Search Patient
+            </button>
+        </form>
+
+        {% if patient_info %}
+            <div class="mt-6 p-4 bg-gray-800 rounded-lg border border-gray-700 shadow-inner">
+                <h4 class="text-xl font-semibold text-blue-400 mb-4">Patient Details: {{ patient_info.name }} (UID: {{ patient_info.uid }})</h4>
+
+                <!-- Personal Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="card p-4 !bg-gray-700 !border-gray-600">
+                        <h4 class="text-lg font-bold text-blue-300 mb-3"><i class="fas fa-user-circle mr-2"></i> Demographics</h4>
+                        <p class="mb-1"><strong>Full Name:</strong> {{ patient_info.name }}</p>
+                        <p class="mb-1"><strong>Date of Birth:</strong> {{ patient_info.date_of_birth }}</p>
+                        <p class="mb-1"><strong>Gender:</strong> {{ patient_info.gender }}</p>
+                        <p class="mb-1"><strong>Contact Info:</strong> {{ patient_info.contact_info }}</p>
+                    </div>
+
+                    <div class="card p-4 !bg-gray-700 !border-gray-600">
+                        <h4 class="text-lg font-bold text-blue-300 mb-3"><i class="fas fa-phone-alt mr-2"></i> Emergency Contact</h4>
+                        {% if patient_info.emergency_contact_name %}
+                            <p class="mb-1"><strong>Name:</strong> {{ patient_info.emergency_contact_name }}</p>
+                            <p class="mb-1"><strong>Relationship:</strong> {{ patient_info.emergency_contact_relationship }}</p>
+                            <p class="mb-1"><strong>Phone:</strong> {{ patient_info.emergency_contact_phone }}</p>
+                        {% else %}
+                            <p class="text-gray-400">No emergency contact information provided.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Critical Medical Details -->
+                <h4 class="text-xl font-semibold text-blue-400 mb-3">Critical Medical Details</h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="card p-4 !bg-gray-700 !border-gray-600">
+                        <h4 class="text-lg font-bold text-blue-300 mb-3"><i class="fas fa-allergies mr-2"></i> Allergies</h4>
+                        {% if medical_records %}
+                            <ul class="list-disc list-inside text-sm pl-2">
+                                {% for record in medical_records %}
+                                    {% set _, allergies_from_record = parse_disease_history(record[1]) %}
+                                    {% if allergies_from_record %}
+                                        <li>{{ allergies_from_record }} ({{ record[0].strftime('%Y-%m-%d') }})</li>
+                                    {% endif %}
+                                {% else %}
+                                    <li class="text-gray-400">No allergies listed.</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <li class="text-gray-400">No allergies listed.</li>
+                        {% endif %}
+                    </div>
+                    <div class="card p-4 !bg-gray-700 !border-gray-600">
+                        <h4 class="text-lg font-bold text-blue-300 mb-3"><i class="fas fa-prescription-bottle-alt mr-2"></i> Current Medications</h4>
+                        {% if medical_records %}
+                            <ul class="list-disc list-inside text-sm pl-2">
+                                {# This displays all prescriptions from all records. For a "current" list, more logic is needed. #}
+                                {% for record in medical_records %}
+                                    {% if record[2] %}
+                                        <li>{{ record[2] }} ({{ record[0].strftime('%Y-%m-%d') }})</li>
+                                    {% endif %}
+                                {% else %}
+                                    <li class="text-gray-400">No current medications listed.</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <li class="text-gray-400">No current medications listed.</li>
+                        {% endif %}
+                    </div>
+                    <div class="card p-4 !bg-gray-700 !border-gray-600">
+                        <h4 class="text-lg font-bold text-blue-300 mb-3"><i class="fas fa-notes-medical mr-2"></i> Pre-existing Conditions</h4>
+                        {% if medical_records %}
+                            <ul class="list-disc list-inside text-sm pl-2">
+                                {# This displays conditions from symptoms/diagnosis. For robust solution, structure this in DB. #}
+                                {% for record in medical_records %}
+                                    {% set symptoms_diagnosis_from_record, _ = parse_disease_history(record[1]) %}
+                                    {% if 'condition' in symptoms_diagnosis_from_record|lower or 'disease' in symptoms_diagnosis_from_record|lower or 'diabetes' in symptoms_diagnosis_from_record|lower or 'hypertension' in symptoms_diagnosis_from_record|lower %}
+                                        <li>{{ symptoms_diagnosis_from_record }} ({{ record[0].strftime('%Y-%m-%d') }})</li>
+                                    {% endif %}
+                                {% else %}
+                                    <li class="text-gray-400">No pre-existing conditions listed.</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end space-x-4">
+                    <a href="{{ url_for('doctor.doctor_edit_patient_details', patient_uid=patient_info.uid) }}"
+                       class="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-5 rounded-md shadow-md transition-colors">
+                        <i class="fas fa-edit mr-2"></i> Edit Patient Details
+                    </a>
+                    <a href="{{ url_for('doctor.doctor_add_medical_record', patient_uid=patient_info.uid) }}"
+                       class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-5 rounded-md shadow-md transition-colors">
+                        <i class="fas fa-plus-circle mr-2"></i> Add New Medical Record
+                    </a>
+                    <a href="{{ url_for('qr_code.emergency_report_download', patient_uid=patient_info.uid) }}"
+                       class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-5 rounded-md shadow-md transition-colors" target="_blank">
+                        <i class="fas fa-download mr-2"></i> Download Full Report (PDF)
+                    </a>
+                </div>
+
+            </div>
+        {% elif searched_uid %}
+            <div class="mt-6 p-4 bg-red-800 text-white rounded-lg border border-red-700 shadow-inner">
+                <p class="font-semibold text-center">{{ message }}</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- All Registered Patients Overview (Optional, if still desired) -->
+    <div class="card">
+        <h3><i class="fas fa-users text-blue-500"></i> All Registered Patients Overview</h3>
+        <p class="text-gray-400 mb-4">Quick overview of all registered patient accounts. Use the search above for full details.</p>
+        <div class="max-h-48 overflow-y-auto bg-gray-700 p-2 rounded-md mb-4 border border-gray-600">
+            <ul class="list-disc list-inside text-gray-300">
+                {% for patient in patients %}
+                    <li>{{ patient[1] }} (UID: <span class="font-mono text-sm">{{ patient[0] }}</span>)</li>
+                {% else %}
+                    <li>No patients registered yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

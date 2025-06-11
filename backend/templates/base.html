@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Health Record - {% block title %}{% endblock %}</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117; /* Dark background as per UI images */
+            color: #c9d1d9; /* Light text color */
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        .flash-message {
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+        }
+        .flash-message.success {
+            background-color: #238636; /* Green */
+            color: #dcffe4;
+            border: 1px solid #34d399;
+        }
+        .flash-message.error {
+            background-color: #da3633; /* Red */
+            color: #ffd8d8;
+            border: 1px solid #ef4444;
+        }
+        .flash-message.info {
+            background-color: #2f81f7; /* Blue */
+            color: #e6f6ff;
+            border: 1px solid #60a5fa;
+        }
+        .flash-message.warning {
+            background-color: #a47600; /* Yellow/Orange */
+            color: #fff8e6;
+            border: 1px solid #fbbf24;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #161b22; /* Slightly lighter dark for sidebar */
+            position: fixed;
+            height: 100%;
+            padding: 1.5rem 1rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        .main-content {
+            margin-left: 250px; /* Offset for sidebar */
+            padding: 1.5rem;
+            flex-grow: 1;
+            background-color: #0d1117; /* Match body background */
+        }
+        .sidebar-nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.5rem;
+            color: #c9d1d9;
+            text-decoration: none;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .sidebar-nav-item:hover {
+            background-color: #21262d; /* Hover background */
+            color: #58a6ff; /* Hover text color */
+        }
+        .sidebar-nav-item.active {
+            background-color: #0c4a6e; /* Active item background */
+            color: #38bdf8; /* Active item text color */
+            font-weight: 600;
+        }
+        /* Style for the user profile at the bottom of the sidebar */
+        .sidebar-user-profile {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background-color: #21262d;
+            border-radius: 0.5rem;
+            margin-top: auto; /* Pushes it to the bottom */
+        }
+        .sidebar-user-profile .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #58a6ff; /* Placeholder color */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #fff;
+            margin-right: 10px;
+        }
+        .sidebar-user-profile .username {
+            font-weight: 600;
+            color: #c9d1d9;
+        }
+        /* Header bar for main content */
+        .main-header {
+            background-color: #161b22;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-radius: 0.5rem; /* Matches card styles */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .main-header h1 {
+            font-size: 1.75rem; /* h1 in header */
+            color: #c9d1d9;
+            font-weight: 700;
+        }
+        .main-header .user-info {
+            display: flex;
+            align-items: center;
+        }
+        .main-header .user-info .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #58a6ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #fff;
+            margin-left: 10px;
+        }
+        .card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            color: #c9d1d9;
+        }
+        .card h3 {
+            color: #58a6ff; /* Blue for card titles */
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        .card h3 i {
+            margin-right: 0.75rem;
+            font-size: 1.5rem;
+        }
+        /* Mobile Responsiveness for Sidebar */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 1rem;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .sidebar-nav {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                width: 100%;
+            }
+            .sidebar-nav-item {
+                margin: 0.5rem;
+                padding: 0.5rem 1rem;
+                flex-grow: 1; /* Allow items to grow */
+                text-align: center;
+                justify-content: center;
+            }
+            .sidebar-nav-item i {
+                margin-right: 0;
+            }
+            .sidebar-user-profile {
+                display: none; /* Hide profile on mobile to save space */
+            }
+            .main-content {
+                margin-left: 0;
+                padding-top: 1rem; /* Adjust padding if sidebar is at top */
+            }
+            .main-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .main-header .user-info {
+                margin-top: 1rem;
+                margin-left: 0;
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div>
+            <div class="text-xl font-bold text-white mb-8 text-center">HC02 Health Record</div>
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('index') }}" class="sidebar-nav-item {% if request.endpoint == 'index' %}active{% endif %}">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                {% if session.get('user_id') %}
+                    {% if session.get('role') == 'patient' %}
+                        <a href="{{ url_for('patient.patient_dashboard') }}" class="sidebar-nav-item {% if request.endpoint.startswith('patient.') and request.endpoint != 'patient.patient_search_record' %}active{% endif %}">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <a href="{{ url_for('patient.patient_dashboard') }}" class="sidebar-nav-item {% if request.endpoint == 'patient.patient_search_record' %}active{% endif %}">
+                            <i class="fas fa-notes-medical"></i> My Health Records
+                        </a>
+                        <a href="{{ url_for('qr_code.generate_qr', patient_uid=session.get('patient_uid', '')) }}" class="sidebar-nav-item {% if request.endpoint.startswith('qr_code.') %}active{% endif %}">
+                            <i class="fas fa-qrcode"></i> Emergency Access
+                        </a>
+                        <a href="{{ url_for('appointment.manage_appointments') }}" class="sidebar-nav-item {% if request.endpoint.startswith('appointment.') %}active{% endif %}">
+                            <i class="fas fa-calendar-alt"></i> Appointments
+                        </a>
+                        <!-- Placeholder for Messages -->
+                        <a href="#" class="sidebar-nav-item opacity-50 cursor-not-allowed">
+                            <i class="fas fa-envelope"></i> Messages
+                        </a>
+                        <!-- Placeholder for Settings -->
+                        <a href="#" class="sidebar-nav-item opacity-50 cursor-not-allowed">
+                            <i class="fas fa-cog"></i> Settings
+                        </a>
+                    {% elif session.get('role') == 'doctor' %}
+                        <a href="{{ url_for('doctor.doctor_dashboard') }}" class="sidebar-nav-item {% if request.endpoint.startswith('doctor.') and request.endpoint != 'doctor.doctor_add_medical_record' and request.endpoint != 'doctor.doctor_new_patient_form' and request.endpoint != 'doctor.doctor_edit_patient_details' %}active{% endif %}">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <a href="{{ url_for('doctor.doctor_dashboard') }}" class="sidebar-nav-item"> {# This now points to doctor.doctor_dashboard to handle search #}
+                            <i class="fas fa-user-injured"></i> Patient Records
+                        </a>
+                        <a href="{{ url_for('doctor.doctor_add_medical_record') }}" class="sidebar-nav-item {% if request.endpoint == 'doctor.doctor_add_medical_record' or request.endpoint == 'doctor.doctor_new_patient_form' or request.endpoint == 'doctor.doctor_edit_patient_details' %}active{% endif %}">
+                            <i class="fas fa-plus-circle"></i> Add/Edit Patient Data
+                        </a>
+                        <a href="{{ url_for('appointment.manage_appointments') }}" class="sidebar-nav-item {% if request.endpoint.startswith('appointment.') %}active{% endif %}">
+                            <i class="fas fa-calendar-alt"></i> Appointments
+                        </a>
+                        <!-- Placeholder for Messages -->
+                        <a href="#" class="sidebar-nav-item opacity-50 cursor-not-allowed">
+                            <i class="fas fa-envelope"></i> Messages
+                        </a>
+                        <!-- Placeholder for Settings -->
+                        <a href="#" class="sidebar-nav-item opacity-50 cursor-not-allowed">
+                            <i class="fas fa-cog"></i> Settings
+                        </a>
+                    {% endif %}
+                    <a href="{{ url_for('auth.logout') }}" class="sidebar-nav-item mt-4 bg-red-700 hover:bg-red-800 text-white">
+                        <i class="fas fa-sign-out-alt"></i> Logout ({{ session.get('username') }})
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('auth.login', role='patient') }}" class="sidebar-nav-item">
+                        <i class="fas fa-user"></i> Patient Login
+                    </a>
+                    <a href="{{ url_for('auth.login', role='doctor') }}" class="sidebar-nav-item">
+                        <i class="fas fa-user-md"></i> Doctor Login
+                    </a>
+                    <a href="{{ url_for('auth.register', role='patient') }}" class="sidebar-nav-item">
+                        <i class="fas fa-user-plus"></i> Patient Register
+                    </a>
+                    <a href="{{ url_for('auth.register', role='doctor') }}" class="sidebar-nav-item">
+                        <i class="fas fa-user-plus"></i> Doctor Register
+                    </a>
+                {% endif %}
+            </nav>
+        </div>
+
+        {% if session.get('user_id') %}
+        <div class="sidebar-user-profile">
+            <div class="avatar">{{ session.get('username')[0]|upper }}</div>
+            <div>
+                <div class="username">{{ session.get('username') }}</div>
+                <div class="text-sm text-gray-400">{{ session.get('role')|capitalize }}</div>
+            </div>
+        </div>
+        {% endif %}
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-content flex-grow">
+        <!-- Main Header Bar -->
+        <header class="main-header">
+            <h1>HC02 {{ 'Patient Portal' if session.get('role') == 'patient' else 'Virtual Health Record' }}</h1>
+            <div class="user-info">
+                <span>Welcome, {{ session.get('username') or 'Guest' }}!</span>
+                <div class="avatar ml-3">{{ session.get('username')[0]|upper if session.get('username') else '?' }}</div>
+            </div>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-6">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="min-h-[calc(100vh-200px)]"> {# Adjust height based on header/footer #}
+            {% block content %}{% endblock %}
+        </div>
+
+        <footer class="text-center text-gray-500 text-sm mt-8 p-4 border-t border-gray-700">
+            <p>&copy; 2025 HC02 Virtual Health Record. Built with care in Bengaluru, India.</p>
+            <p class="mt-1">Empowering you with control over your health.</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,5 @@
+Flask
+psycopg2-binary
+Flask-Session
+Flask-WeasyPrint
+Werkzeug # For secure password hashing

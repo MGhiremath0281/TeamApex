@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Portal{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <h1 class="text-3xl font-bold text-white mb-6">Welcome Back, {{ username }}!</h1>
+
+    {% if message %}
+        <div class="bg-red-700 text-white p-4 rounded-md mb-6 shadow-lg">
+            {{ message }}
+        </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+        <!-- Vitals Summary Card -->
+        <div class="card">
+            <h3><i class="fas fa-heartbeat text-red-500"></i> Vitals Summary</h3>
+            {% if vitals_summary %}
+                <p class="text-lg mb-2">Last Blood Pressure: <span class="font-bold">{{ vitals_summary.last_blood_pressure }}</span></p>
+                <p class="text-lg mb-2">Last Heart Rate: <span class="font-bold">{{ vitals_summary.last_heart_rate }}</span></p>
+                <p class="text-lg mb-2">Body Temperature: <span class="font-bold">{{ vitals_summary.body_temperature }}</span></p>
+                <p class="text-lg mb-4">Weight: <span class="font-bold">{{ vitals_summary.weight }}</span></p>
+                <p class="text-sm text-gray-400">Last updated: {{ vitals_summary.last_updated }}</p>
+                <a href="#" class="text-blue-400 hover:text-blue-300 text-sm mt-3 inline-block">View Full Vitals History →</a>
+            {% else %}
+                <p class="text-gray-400">No vital records found yet.</p>
+            {% endif %}
+        </div>
+
+        <!-- Upcoming Appointment Card -->
+        <div class="card">
+            <h3><i class="fas fa-calendar-check text-green-500"></i> Upcoming Appointment</h3>
+            {% if upcoming_appointment %}
+                <p class="text-lg mb-2">Date: <span class="font-bold">{{ upcoming_appointment[0].strftime('%Y-%m-%d') }}</span></p>
+                <p class="text-lg mb-2">Time: <span class="font-bold">{{ upcoming_appointment[0].strftime('%H:%M') }}</span></p>
+                <p class="text-lg mb-2">Doctor: <span class="font-bold">Dr. {{ upcoming_appointment[3] }} (ID: {{ upcoming_appointment[4] }})</span></p>
+                <p class="text-lg mb-4">Reason: <span class="font-bold">{{ upcoming_appointment[1] }}</span></p>
+                <a href="{{ url_for('appointment.manage_appointments') }}" class="text-blue-400 hover:text-blue-300 text-sm mt-3 inline-block">Manage Appointments →</a>
+            {% else %}
+                <p class="text-gray-400">No upcoming appointments.</p>
+                <a href="{{ url_for('appointment.create_appointment') }}" class="text-blue-400 hover:text-blue-300 text-sm mt-3 inline-block">Schedule New Appointment →</a>
+            {% endif %}
+        </div>
+
+        <!-- My Medications Card -->
+        <div class="card">
+            <h3><i class="fas fa-pills text-yellow-500"></i> My Medications</h3>
+            {% if medications %}
+                <ul class="list-disc list-inside text-lg mb-4 max-h-32 overflow-y-auto pr-2">
+                    {% for med in medications %}
+                        <li>{{ med }}</li>
+                    {% endfor %}
+                </ul>
+                <a href="#" class="text-blue-400 hover:text-blue-300 text-sm mt-3 inline-block">Full Medication List →</a>
+            {% else %}
+                <p class="text-gray-400">No active medications listed.</p>
+            {% endif %}
+        </div>
+
+        <!-- Allergies & Conditions Card -->
+        <div class="card">
+            <h3><i class="fas fa-allergies text-red-500"></i> Allergies & Conditions</h3>
+            {% if allergies or conditions %}
+                {% if allergies %}
+                    <p class="text-md font-semibold mb-1">Allergies:</p>
+                    <ul class="list-disc list-inside text-lg mb-2 pl-4">
+                        {% for allergy in allergies %}
+                            <li>{{ allergy }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-gray-400">No known allergies.</p>
+                {% endif %}
+                {% if conditions %}
+                    <p class="text-md font-semibold mb-1 mt-3">Conditions:</p>
+                    <ul class="list-disc list-inside text-lg pl-4">
+                        {% for condition in conditions %}
+                            <li>{{ condition }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-gray-400 mt-3">No known conditions.</p>
+                {% endif %}
+                <a href="#" class="text-blue-400 hover:text-blue-300 text-sm mt-3 inline-block">Update My Health Profile →</a>
+            {% else %}
+                <p class="text-gray-400">No allergies or conditions listed.</p>
+                <a href="#" class="text-blue-400 hover:text-blue-300 text-sm mt-3 inline-block">Update My Health Profile →</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Retrieve My Reports Section -->
+    <div class="card mb-8">
+        <h3><i class="fas fa-file-medical text-indigo-500"></i> Retrieve My Reports</h3>
+        <p class="text-gray-400 mb-4">Enter your Unique Patient ID to retrieve your comprehensive health reports.</p>
+        <form action="{{ url_for('patient.patient_search_record') }}" method="POST" class="flex flex-col sm:flex-row gap-4">
+            <input type="hidden" name="current_patient_uid" value="{{ patient_uid }}">
+            <input type="text" name="uid" placeholder="e.g., {{ patient_uid or 'VHR-XYZ-789' }}"
+                   value="{{ searched_uid or patient_uid or '' }}"
+                   class="flex-grow bg-gray-700 text-white px-4 py-3 rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-md shadow-md transition-colors flex-shrink-0">
+                <i class="fas fa-search mr-2"></i> Get Reports
+            </button>
+        </form>
+
+        {% if searched_uid and patient_info %}
+        <div class="mt-6 p-4 bg-gray-800 rounded-lg border border-gray-700 shadow-inner">
+            <h4 class="text-xl font-semibold text-blue-400 mb-4">Report Details for UID: {{ patient_info.uid }}</h4>
+            <p class="text-gray-300 mb-2">Name: <span class="font-bold">{{ patient_info.name }}</span></p>
+            <p class="text-gray-300 mb-4">You can download the full PDF report below.</p>
+            <a href="{{ url_for('qr_code.emergency_report_download', patient_uid=patient_info.uid) }}"
+               class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-5 rounded-md shadow-md transition-colors"
+               target="_blank">
+                <i class="fas fa-download mr-2"></i> Download Full Report (PDF)
+            </a>
+        </div>
+        {% elif searched_uid %}
+        <div class="mt-6 p-4 bg-red-800 text-white rounded-lg border border-red-700 shadow-inner">
+            <p class="font-semibold text-center">{{ message }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Quick Actions Section -->
+    <div class="card">
+        <h3><i class="fas fa-bolt text-orange-500"></i> Quick Actions</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+            <a href="{{ url_for('patient.patient_edit_profile') }}" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-md shadow-md transition-colors text-center">
+                <i class="fas fa-user-edit mr-2"></i> Edit My Profile
+            </a>
+            <a href="#" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-md shadow-md transition-colors text-center">
+                <i class="fas fa-prescription-bottle-alt mr-2"></i> Request Prescription
+            </a>
+            <a href="#" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-md shadow-md transition-colors text-center">
+                <i class="fas fa-paper-plane mr-2"></i> Send Message to Doctor
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

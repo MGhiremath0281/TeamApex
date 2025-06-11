@@ -1,0 +1,72 @@
+/* backend/static/css/styles.css */
+
+/*
+   This file is for any custom CSS rules that you want to add
+   beyond the utility classes provided by Tailwind CSS.
+
+   You can use it for:
+   - Global resets or foundational styles not covered by Tailwind's base.
+   - Specific component styling where a custom approach is preferred.
+   - Overriding Tailwind defaults (though often better done with `tailwind.config.js`).
+   - Print styles or other media queries.
+*/
+
+/* Basic box-sizing for all elements */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* Optional: Customize scrollbar for a more modern look (Webkit browsers) */
+/*
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+*/
+
+/* Example: Custom focus outline for accessibility */
+/*
+:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+*/
+
+/* Example: Custom style for a specific class not covered by Tailwind */
+/*
+.custom-card-header {
+    background-color: #e2e8f0;
+    color: #2d3748;
+    padding: 1rem;
+    font-weight: bold;
+    border-bottom: 1px solid #cbd5e0;
+}
+*/
+
+/* Adjustments for print if necessary (WeasyPrint handles basic HTML/CSS well) */
+@media print {
+    body {
+        background-color: #fff !important;
+        color: #000 !important;
+    }
+    /* Hide navigation and footer when printing */
+    header, footer {
+        display: none !important;
+    }
+    /* Ensure content flows well for PDF */
+    .container {
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+}

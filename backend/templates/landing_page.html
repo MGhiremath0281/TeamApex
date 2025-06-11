@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<div class="flex flex-col items-center justify-center min-h-screen -mt-24 text-center">
+    <h1 class="text-5xl font-extrabold text-gray-900 mb-8">Welcome to VHR System</h1>
+    <p class="text-xl text-gray-700 mb-12 max-w-2xl">
+        Your globally accessible Virtual Health Record & Emergency Access System.
+        Please select your role to continue.
+    </p>
+
+    <div class="flex flex-col sm:flex-row space-y-6 sm:space-y-0 sm:space-x-8 w-full max-w-3xl">
+        <!-- Patient Section -->
+        <div class="bg-white p-10 rounded-lg shadow-xl flex-1 flex flex-col items-center justify-between transition-transform duration-300 transform hover:scale-105 border-b-4 border-blue-600">
+            <h2 class="text-3xl font-bold text-blue-800 mb-6">I am a Patient</h2>
+            <p class="text-gray-700 mb-8">Manage your personal health records, view appointments, and access emergency reports.</p>
+            <div class="w-full space-y-4">
+                <a href="{{ url_for('auth.login', role='patient') }}" class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition-colors">
+                    Patient Login
+                </a>
+                <a href="{{ url_for('auth.register', role='patient') }}" class="block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition-colors">
+                    Patient Register
+                </a>
+            </div>
+        </div>
+
+        <!-- Doctor Section -->
+        <div class="bg-white p-10 rounded-lg shadow-xl flex-1 flex flex-col items-center justify-between transition-transform duration-300 transform hover:scale-105 border-b-4 border-indigo-600">
+            <h2 class="text-3xl font-bold text-indigo-800 mb-6">I am a Doctor</h2>
+            <p class="text-gray-700 mb-8">Access patient records, add medical history, and manage appointments for your patients.</p>
+            <div class="w-full space-y-4">
+                <a href="{{ url_for('auth.login', role='doctor') }}" class="block w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition-colors">
+                    Doctor Login
+                </a>
+                <a href="{{ url_for('auth.register', role='doctor') }}" class="block w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition-colors">
+                    Doctor Register
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
