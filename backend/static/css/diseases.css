@@ -1,0 +1,334 @@
+/* Styling for diseases.html */
+
+/* Ensure basic reset and font are handled by base.html or a global CSS file. */
+/* If not, uncomment these: */
+/* * { margin: 0; padding: 0; box-sizing: border-box; } */
+/* body { font-family: 'Inter', sans-serif; } */
+
+.container { /* Added .container class to the main div */
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    padding: 40px;
+    width: 100%;
+    max-width: 700px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    animation: fadeIn 0.5s ease-out;
+    position: relative;
+    min-height: 500px;
+    padding-bottom: 90px; /* Space for the back button */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+h1 {
+    color: #007bff;
+    margin-bottom: 20px;
+    font-size: 2.5em;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+h1 i {
+    color: #4CAF50; /* Consistent green for icons */
+    font-size: 0.9em;
+}
+
+.back-button {
+    background-color: #4CAF50; /* A good default for a "back" or "success" button */
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.2em;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: fit-content;
+    margin: 0 auto;
+    position: absolute;
+    bottom: 30px; /* Position it relative to the bottom of the container */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+}
+
+.back-button:hover {
+    background-color: #45a049; /* Darker green on hover */
+    transform: translateY(-3px) translateX(-50%);
+    box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+}
+
+.back-button:active {
+    transform: translateY(0) translateX(-50%);
+    box-shadow: 0 3px 10px rgba(0, 123, 255, 0.2);
+}
+
+.back-button:not(.show) {
+    display: none;
+}
+
+.back-button.show {
+    display: flex;
+}
+
+/* h2 is not used in the provided HTML, keeping for consistency if it's meant to be elsewhere */
+h2 {
+    color: #34495e;
+    margin-bottom: 15px;
+    font-size: 1.8em;
+    font-weight: 600;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #555;
+    font-size: 1.1em;
+}
+
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #c9d6df;
+    border-radius: 10px;
+    font-size: 1.1em;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    background-color: #f8fcfd;
+    color: #333;
+}
+
+.form-group input[type="text"]:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.2);
+}
+
+button {
+    background-color: #007bff; /* Primary blue button */
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.2em;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: fit-content;
+    margin: 0 auto;
+}
+
+button i {
+    font-size: 1.1em;
+}
+
+button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 10px rgba(0, 123, 255, 0.2);
+}
+
+.message-box {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-weight: 500;
+    display: none;
+    animation: slideIn 0.3s ease-out;
+}
+
+.message-box.show {
+    display: block;
+}
+
+.message-box.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#results-section {
+    display: none;
+    margin-top: 30px;
+    text-align: left;
+    background-color: #f0f8ff;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: inset 0 0 10px rgba(0, 123, 255, 0.05);
+}
+
+#results-section.show {
+    display: block;
+}
+
+#results-section h3 {
+    color: #007bff;
+    font-size: 1.6em;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #a8d7ff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#results-section h3 i {
+    color: #4CAF50; /* Consistent green for icons */
+}
+
+.food-category {
+    margin-bottom: 20px;
+}
+
+.food-category h4 {
+    font-size: 1.3em;
+    color: #34495e;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.food-category h4 i {
+    font-size: 1.1em;
+}
+
+.food-category ul {
+    list-style: none;
+    padding-left: 20px;
+}
+
+.food-category ul li {
+    position: relative;
+    margin-bottom: 8px;
+    font-size: 1.05em;
+    line-height: 1.4;
+    color: #444;
+}
+
+.food-category ul li:last-child {
+    margin-bottom: 0;
+}
+
+.food-category ul li::before {
+    content: "\2022"; /* Bullet point */
+    color: #4CAF50;
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+}
+
+.food-category.avoid ul li::before {
+    content: "\2717"; /* Cross mark */
+    color: #f44336;
+    font-weight: bold;
+}
+
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+    display: none;
+}
+
+.loading-spinner.show {
+    display: block;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 15px;
+    }
+    .container {
+        padding: 25px;
+        gap: 15px;
+        padding-bottom: 90px;
+    }
+    h1 {
+        font-size: 1.8em;
+        flex-direction: column;
+        gap: 10px;
+    }
+    h2 {
+        font-size: 1.4em;
+    }
+    .form-group input[type="text"],
+    button {
+        font-size: 1em;
+        padding: 12px 20px;
+    }
+    button {
+        width: 100%;
+    }
+    .back-button {
+        width: calc(100% - 60px); /* Adjust for left/right padding */
+        left: 30px; /* Align with container's padding */
+        transform: translateX(0%); /* Remove center transform for mobile */
+    }
+    .back-button:hover {
+        transform: translateY(-3px) translateX(0%);
+    }
+    .back-button:active {
+        transform: translateY(0) translateX(0%);
+    }
+    #results-section {
+        padding: 15px;
+    }
+    #results-section h3 {
+        font-size: 1.3em;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .food-category h4 {
+        font-size: 1.1em;
+    }
+    .food-category ul li {
+        font-size: 0.95em;
+    }
+}

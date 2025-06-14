@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disease-Specific Diet Recommender</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Basic Reset & Font */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e0f2f7; /* Lighter blue background */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align to top for better scrollability */
+            min-height: 100vh;
+            color: #333;
+            padding: 30px;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 16px; /* Soft rounded corners */
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15); /* More prominent shadow */
+            padding: 40px;
+            width: 100%;
+            max-width: 700px; /* Wider for better content display */
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            animation: fadeIn 0.5s ease-out;
+            position: relative; /* Needed for absolute positioning of back button */
+            min-height: 500px; /* Ensure enough space for the button at the bottom */
+            padding-bottom: 90px; /* Add padding to make space for the button */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: #007bff; /* Primary blue */
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        h1 i {
+            color: #4CAF50; /* Green icon color */
+            font-size: 0.9em;
+        }
+
+        /* Back button styling (moved to bottom) */
+        .back-button {
+            /* Removed fixed background-color here to allow the main button's hover to apply */
+            color: white;
+            padding: 15px 30px; /* Match search button padding */
+            border: none;
+            border-radius: 10px; /* Match search button border-radius */
+            cursor: pointer;
+            font-size: 1.2em; /* Match search button font-size */
+            font-weight: 600; /* Match search button font-weight */
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2); /* Match search button shadow */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px; /* Match search button gap */
+            width: fit-content;
+            margin: 0 auto; /* Center the button */
+
+            /* Positioning at the bottom */
+            position: absolute;
+            bottom: 30px; /* Distance from the bottom of the container */
+            left: 50%;
+            transform: translateX(-50%); /* Center horizontally */
+            z-index: 10; /* Ensure it's above other content */
+        }
+
+        /* Initial state and hover/active effects for the back button, mimicking the main button */
+        .back-button {
+            background-color: black; /* Default color, same as search button */
+        }
+
+        .back-button:hover {
+            background-color: #007bff; /* Darker blue on hover, same as search button */
+            transform: translateY(-3px) translateX(-50%); /* Adjust transform for centering */
+            backdrop-filter: blur(5px);
+            box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+        }
+
+        .back-button:active {
+            transform: translateY(0) translateX(-50%); /* Adjust transform for centering */
+            box-shadow: 0 3px 10px rgba(0, 123, 255, 0.2);
+        }
+
+        .back-button:not(.show) { /* Hide with display: none */
+            display: none;
+        }
+
+        .back-button.show {
+            display: flex; /* Show as flex */
+        }
+
+        h2 {
+            color: #34495e;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #555;
+            font-size: 1.1em;
+        }
+
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #c9d6df; /* Lighter border */
+            border-radius: 10px; /* More rounded */
+            font-size: 1.1em;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background-color: #f8fcfd; /* Off-white input background */
+        }
+
+        .form-group input[type="text"]:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.2);
+        }
+
+        button {
+            background-color: black; /* Primary blue button */
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px; /* Rounded corners */
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: fit-content;
+            margin: 0 auto;
+        }
+
+        button i {
+            font-size: 1.1em;
+        }
+
+        button:hover {
+            background-color: #007bff; /* Darker blue on hover */
+            transform: translateY(-3px);
+            backdrop-filter: blur(5px);
+            box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 10px rgba(0, 123, 255, 0.2);
+        }
+
+        .message-box {
+            background-color: #fff3cd; /* Warning yellow */
+            color: #856404; /* Darker yellow text */
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .message-box.show {
+            display: block;
+        }
+
+        .message-box.error {
+            background-color: #f8d7da; /* Error red */
+            color: #721c24; /* Darker red text */
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Results Section */
+        #results-section {
+            display: none;
+            margin-top: 30px;
+            text-align: left;
+            background-color: #f0f8ff; /* Light blue background */
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: inset 0 0 10px rgba(0, 123, 255, 0.05);
+        }
+
+        #results-section.show {
+            display: block;
+        }
+
+        #results-section h3 {
+            color: #007bff;
+            font-size: 1.6em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #a8d7ff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #results-section h3 i {
+            color: #4CAF50; /* Green icon */
+        }
+
+        .food-category {
+            margin-bottom: 20px;
+        }
+
+        .food-category h4 {
+            font-size: 1.3em;
+            color: #34495e;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .food-category h4 i {
+            font-size: 1.1em;
+        }
+
+        .food-category ul {
+            list-style: none; /* Remove default bullet */
+            padding-left: 20px;
+        }
+
+        .food-category ul li {
+            position: relative;
+            margin-bottom: 8px;
+            font-size: 1.05em;
+            line-height: 1.4;
+            color: #444;
+        }
+
+        .food-category ul li:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Custom bullet for list items */
+        .food-category ul li::before {
+            content: "\2022"; /* Unicode bullet */
+            color: #4CAF50; /* Green for recovery */
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+
+        .food-category.avoid ul li::before {
+            content: "\2717"; /* Cross mark for avoid */
+            color: #f44336; /* Red for avoid */
+            font-weight: bold;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        .loading-spinner.show {
+            display: block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+            .container {
+                padding: 25px;
+                gap: 15px;
+                padding-bottom: 90px; /* Maintain padding for button at bottom */
+            }
+            h1 {
+                font-size: 1.8em;
+                flex-direction: column;
+                gap: 10px;
+            }
+            h2 {
+                font-size: 1.4em;
+            }
+            .form-group input[type="text"],
+            button {
+                font-size: 1em;
+                padding: 12px 20px;
+            }
+            button {
+                width: 100%;
+            }
+            .back-button { /* Adjust back button for small screens */
+                width: calc(100% - 60px); /* Account for body padding */
+                left: 30px;
+                transform: translateX(0%);
+            }
+            .back-button:hover {
+                transform: translateY(-3px) translateX(0%); /* Adjust transform for centering */
+            }
+
+            .back-button:active {
+                transform: translateY(0) translateX(0%); /* Adjust transform for centering */
+            }
+            #results-section {
+                padding: 15px;
+            }
+            #results-section h3 {
+                font-size: 1.3em;
+                flex-direction: column;
+                gap: 8px;
+            }
+            .food-category h4 {
+                font-size: 1.1em;
+            }
+            .food-category ul li {
+                font-size: 0.95em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-stethoscope"></i> Disease Diet Planner <i class="fas fa-apple-alt"></i></h1>
+
+        <div id="message-box" class="message-box"></div>
+
+        <div class="form-group">
+            <label for="disease-input">Enter a Disease:</label>
+            <input type="text" id="disease-input" placeholder="e.g., Common Cold, Diabetes, Anemia">
+        </div>
+
+        <button id="search-button"><i class="fas fa-search"></i> Get Diet Info</button>
+
+        <div id="results-section">
+            <h3 id="result-disease-name"><i class="fas fa-notes-medical"></i></h3>
+            <div class="loading-spinner" id="results-loading"></div>
+
+            <div class="food-category">
+                <h4><i class="fas fa-check-circle"></i> Foods to Recover:</h4>
+                <ul id="foods-to-recover-list">
+                    </ul>
+            </div>
+
+            <div class="food-category avoid">
+                <h4><i class="fas fa-times-circle"></i> Foods to Avoid:</h4>
+                <ul id="foods-to-avoid-list">
+                    </ul>
+            </div>
+        </div>
+        <button id="back-button" class="back-button"><i class="fas fa-arrow-left"></i> Back to Search</button>
+    </div>
+
+    <script>
+        // Hardcoded data from finalDeitData.csv (or similar structure)
+        // This simulates loading data without a backend or file system access.
+        const diseaseData = [
+            {
+                "Disease": "Common Cold",
+                "Foods for Recovery": "Chicken Soup, Ginger Tea, Vitamin C (Oranges, Bell Peppers), Honey, Garlic",
+                "Foods to Avoid": "Dairy products (can thicken mucus), Sugary foods, Alcohol"
+            },
+            {
+                "Disease": "Influenza",
+                "Foods for Recovery": "Broth, Electrolyte Drinks, Berries, Cooked Vegetables, Lean Protein",
+                "Foods to Avoid": "Heavy, Greasy Foods, Alcohol, Sugary Drinks"
+            },
+            {
+                "Disease": "Sore Throat",
+                "Foods for Recovery": "Warm Herbal Teas, Honey, Soft Cooked Vegetables, Mashed Potatoes, Scrambled Eggs",
+                "Foods to Avoid": "Acidic foods (Citrus, Tomatoes), Spicy foods, Crunchy foods, Alcohol"
+            },
+            {
+                "Disease": "Fever",
+                "Foods for Recovery": "Water, Coconut Water, Fruit Juices, Broth, Rice Gruel",
+                "Foods to Avoid": "Heavy, Greasy Foods, Alcohol, Caffeine"
+            },
+            {
+                "Disease": "Diarrhea",
+                "Foods for Recovery": "BRAT Diet (Bananas, Rice, Applesauce, Toast), Boiled Potatoes, Clear Broths, Yogurt (with live cultures)",
+                "Foods to Avoid": "Dairy (except yogurt), Fatty foods, Spicy foods, High-fiber foods, Caffeine, Alcohol"
+            },
+            {
+                "Disease": "Constipation",
+                "Foods for Recovery": "High-Fiber Foods (Whole Grains, Fruits, Vegetables), Prunes, Water, Legumes",
+                "Foods to Avoid": "Processed foods, Red meat (in excess), Unripe bananas, Dairy (for some)"
+            },
+            {
+                "Disease": "Indigestion",
+                "Foods for Recovery": "Ginger, Peppermint, Chamomile Tea, Bananas, Applesauce",
+                "Foods to Avoid": "Fatty foods, Spicy foods, Caffeine, Alcohol, Carbonated drinks"
+            },
+            {
+                "Disease": "Stomach Flu",
+                "Foods for Recovery": "Ginger Ale, Saltine Crackers, Clear Broths, Bananas, Rice",
+                "Foods to Avoid": "Dairy, Greasy foods, Spicy foods, Raw vegetables"
+            },
+            {
+                "Disease": "Headache",
+                "Foods for Recovery": "Water, Magnesium-rich foods (Spinach, Almonds), Caffeine (in moderation for some), Watermelon",
+                "Foods to Avoid": "Aged cheese, Processed meats, Red wine, Artificial sweeteners, Caffeine (in excess)"
+            },
+            {
+                "Disease": "Migraine",
+                "Foods for Recovery": "Magnesium-rich foods, Riboflavin-rich foods (Almonds, Mushrooms), Omega-3s (Salmon)",
+                "Foods to Avoid": "Aged cheese, Processed meats, Red wine, Chocolate, Caffeine (in excess), MSG"
+            },
+            {
+                "Disease": "Anemia",
+                "Foods for Recovery": "Iron-rich foods (Red Meat, Lentils, Spinach), Vitamin C (for absorption), Folate (Leafy Greens)",
+                "Foods to Avoid": "Coffee, Tea, Calcium-rich foods (consume separately from iron), Gluten (for some)"
+            },
+            {
+                "Disease": "High Blood Pressure",
+                "Foods for Recovery": "Potassium-rich foods (Bananas, Spinach, Avocados), Berries, Oats, Fish, Leafy Greens",
+                "Foods to Avoid": "High sodium foods, Processed foods, Trans fats, Excessive alcohol"
+            },
+            {
+                "Disease": "High Cholesterol",
+                "Foods for Recovery": "Oats, Barley, Legumes, Nuts, Fatty Fish (Salmon), Avocados, Olive Oil",
+                "Foods to Avoid": "Trans fats, Saturated fats (Red meat, Full-fat dairy), Processed foods"
+            },
+            {
+                "Disease": "Diabetes (Type 2)",
+                "Foods for Recovery": "Whole Grains, Non-Starchy Vegetables, Lean Proteins, Berries, Nuts, Seeds",
+                "Foods to Avoid": "Sugary drinks, Refined carbohydrates (White bread, Pasta), Processed foods, High-sugar fruits (in large quantities)"
+            },
+            {
+                "Disease": "Arthritis",
+                "Foods for Recovery": "Omega-3 Fatty Acids (Salmon, Flaxseed), Turmeric, Ginger, Berries, Leafy Greens",
+                "Foods to Avoid": "Processed foods, Red meat, Sugary foods, Fried foods, Gluten (for some)"
+            },
+            {
+                "Disease": "Osteoporosis",
+                "Foods for Recovery": "Calcium-rich foods (Dairy, Fortified Plant Milks, Tofu), Vitamin D (Fatty Fish, Fortified Foods)",
+                "Foods to Avoid": "Excessive sodium, Caffeine (in excess), Alcohol, Soft drinks"
+            },
+            {
+                "Disease": "Gout",
+                "Foods for Recovery": "Cherries, Skim Milk, Water, Whole Grains, Vegetables (low-purine)",
+                "Foods to Avoid": "High-purine foods (Red meat, Organ meats, Seafood), Alcohol (especially beer), Sugary drinks"
+            },
+            {
+                "Disease": "Kidney Stones",
+                "Foods for Recovery": "Plenty of Water, Citrus Fruits (Lemons, Oranges), Low Sodium Foods, Limit Oxalates",
+                "Foods to Avoid": "High oxalate foods (Spinach, Rhubarb, Chocolate), High sodium foods, Excessive animal protein"
+            },
+            {
+                "Disease": "Urinary Tract Infection (UTI)",
+                "Foods for Recovery": "Cranberry Juice (unsweetened), Water, Probiotic Yogurt, Blueberries",
+                "Foods to Avoid": "Caffeine, Alcohol, Spicy foods, Citrus fruits (can irritate bladder)"
+            },
+            {
+                "Disease": "Celiac Disease",
+                "Foods for Recovery": "Gluten-Free Grains (Rice, Quinoa, Corn), Fruits, Vegetables, Lean Meats, Legumes",
+                "Foods to Avoid": "Wheat, Barley, Rye (and products containing them), Processed foods that may contain gluten"
+            },
+            {
+                "Disease": "IBS (Irritable Bowel Syndrome)",
+                "Foods for Recovery": "Low FODMAP Foods (depending on trigger), Peppermint Tea, Soluble Fiber (Oats, Bananas)",
+                "Foods to Avoid": "High FODMAP foods (Onions, Garlic, certain Fruits/Vegetables/Dairy), Artificial sweeteners, Spicy foods"
+            },
+            {
+                "Disease": "Acid Reflux/GERD",
+                "Foods for Recovery": "Low-Acid Fruits (Bananas, Melons), Oats, Lean Protein, Green Vegetables, Ginger",
+                "Foods to Avoid": "Spicy foods, Fatty foods, Citrus fruits, Tomatoes, Chocolate, Peppermint, Caffeine, Alcohol"
+            },
+            {
+                "Disease": "Gastritis",
+                "Foods for Recovery": "Broth, Bananas, Applesauce, Cooked Vegetables, Plain Rice",
+                "Foods to Avoid": "Spicy foods, Acidic foods, Caffeine, Alcohol, Fatty foods, Fried foods"
+            },
+            {
+                "Disease": "Pneumonia",
+                "Foods for Recovery": "Plenty of Fluids, Lean Proteins, Fruits, Vegetables, Whole Grains",
+                "Foods to Avoid": "Heavy, Greasy Foods, Sugary foods, Alcohol"
+            },
+            {
+                "Disease": "Bronchitis",
+                "Foods for Recovery": "Warm Fluids, Honey, Ginger, Garlic, Vitamin C-rich foods",
+                "Foods to Avoid": "Dairy (can increase mucus), Sugary foods, Processed foods, Alcohol"
+            },
+            {
+                "Disease": "Depression (supportive)",
+                "Foods for Recovery": "Omega-3s (Fatty Fish), Whole Grains, Fruits, Vegetables, Fermented Foods",
+                "Foods to Avoid": "Processed foods, Sugary foods, Excessive caffeine, Alcohol"
+            },
+            {
+                "Disease": "Anxiety (supportive)",
+                "Foods for Recovery": "Magnesium-rich foods, Chamomile Tea, Green Tea, Whole Grains, Complex Carbohydrates",
+                "Foods to Avoid": "Caffeine, Sugary foods, Processed foods, Alcohol"
+            },
+            {
+                "Disease": "Fatigue",
+                "Foods for Recovery": "Whole Grains, Lean Proteins, Fruits, Vegetables, Iron-rich foods",
+                "Foods to Avoid": "Sugary foods, Refined carbohydrates, Excessive caffeine, Alcohol"
+            },
+            {
+                "Disease": "Post-Surgery Recovery",
+                "Foods for Recovery": "Protein (Eggs, Chicken, Fish), Vitamin C (Berries, Citrus), Zinc (Nuts, Seeds), Anti-inflammatory Foods (Leafy Greens, Salmon)",
+                "Foods to Avoid": "Alcohol, Spicy foods, Hard-to-digest foods, Excessive sugar"
+            },
+            {
+                "Disease": "Obesity (Weight Management)",
+                "Foods for Recovery": "High-Fiber Foods, Lean Proteins, Plenty of Vegetables, Whole Fruits, Water",
+                "Foods to Avoid": "Sugary drinks, Processed snacks, Fried foods, Excessive unhealthy fats, Refined carbohydrates"
+            }
+        ];
+
+
+        // DOM Elements
+        const diseaseInput = document.getElementById('disease-input');
+        const searchButton = document.getElementById('search-button');
+        const resultsSection = document.getElementById('results-section');
+        const resultDiseaseName = document.getElementById('result-disease-name');
+        const foodsToRecoverList = document.getElementById('foods-to-recover-list');
+        const foodsToAvoidList = document.getElementById('foods-to-avoid-list');
+        const messageBox = document.getElementById('message-box');
+        const resultsLoading = document.getElementById('results-loading');
+        const backButton = document.getElementById('back-button'); // Get the new back button
+
+        /**
+         * Displays a temporary message in the message box.
+         * @param {string} message - The message to display.
+         * @param {boolean} isError - True if it's an error message, false otherwise.
+         */
+        function showMessage(message, isError = false) {
+            messageBox.textContent = message;
+            messageBox.className = 'message-box show'; // Reset classes
+            if (isError) {
+                messageBox.classList.add('error');
+            }
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 4000); // Hide after 4 seconds
+        }
+
+        /**
+         * Renders the list of foods for a given category.
+         * @param {HTMLElement} ulElement - The UL element to populate.
+         * @param {string} foodsString - Comma-separated string of foods.
+         */
+        function renderFoodList(ulElement, foodsString) {
+            ulElement.innerHTML = ''; // Clear previous list
+            if (!foodsString || foodsString.trim() === "") {
+                const li = document.createElement('li');
+                li.textContent = "No specific recommendations available.";
+                ulElement.appendChild(li);
+                return;
+            }
+            foodsString.split(',').forEach(food => {
+                const li = document.createElement('li');
+                li.textContent = food.trim();
+                ulElement.appendChild(li);
+            });
+        }
+
+        searchButton.addEventListener('click', () => {
+            const inputDisease = diseaseInput.value.trim();
+            if (!inputDisease) {
+                showMessage('Please enter a disease name.', true);
+                return;
+            }
+
+            resultsSection.classList.remove('show'); // Hide previous results
+            foodsToRecoverList.innerHTML = ''; // Clear lists
+            foodsToAvoidList.innerHTML = '';
+            resultDiseaseName.innerHTML = `<i class="fas fa-notes-medical"></i> Searching for: ${inputDisease}...`;
+            resultsLoading.classList.add('show');
+            showMessage('Searching for diet information...');
+            // backButton.classList.remove('show'); // Keep back button hidden until results are displayed
+
+            setTimeout(() => { // Simulate loading time
+                const foundDisease = diseaseData.find(d =>
+                    d.Disease.toLowerCase() === inputDisease.toLowerCase()
+                );
+
+                resultsLoading.classList.remove('show');
+
+                if (foundDisease) {
+                    resultDiseaseName.innerHTML = `<i class="fas fa-notes-medical"></i> Diet Plan for: ${foundDisease.Disease}`;
+                    renderFoodList(foodsToRecoverList, foundDisease["Foods for Recovery"]);
+                    renderFoodList(foodsToAvoidList, foundDisease["Foods to Avoid"]);
+                    resultsSection.classList.add('show');
+                    showMessage('Diet information found!');
+                    backButton.classList.add('show'); // Show back button when results are displayed
+                } else {
+                    resultDiseaseName.innerHTML = `<i class="fas fa-notes-medical"></i> No information for: ${inputDisease}`;
+                    foodsToRecoverList.innerHTML = '<li>No specific foods for recovery found for this disease.</li>';
+                    foodsToAvoidList.innerHTML = '<li>No specific foods to avoid found for this disease.</li>';
+                    resultsSection.classList.add('show');
+                    showMessage('Disease not found in our database. Please check spelling or try another.', true);
+                    backButton.classList.add('show'); // Show back button even if no results
+                }
+            }, 1500); // Simulate network delay of 1.5 seconds
+        });
+
+        // Event listener for the new back button
+        backButton.addEventListener('click', () => {
+            resultsSection.classList.remove('show'); // Hide results section
+            diseaseInput.value = ''; // Clear the input field
+            messageBox.classList.remove('show'); // Hide any active message
+            backButton.classList.remove('show'); // Hide the back button itself
+            // You can also reset resultDiseaseName if you want
+            resultDiseaseName.innerHTML = `<i class="fas fa-notes-medical"></i>`;
+            foodsToRecoverList.innerHTML = '';
+            foodsToAvoidList.innerHTML = '';
+        });
+
+        // Optional: Allow pressing Enter key to search
+        diseaseInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                searchButton.click();
+            }
+        });
+
+    </script>
+</body>
+</html>
